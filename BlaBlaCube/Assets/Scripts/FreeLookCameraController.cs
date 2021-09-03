@@ -20,7 +20,7 @@ public class FreeLookCameraController : MonoBehaviour
     private void Update()
     {
         //если нажата левая кнопка мыши
-        if(SceneController.inputActions.Camera.Hold.phase == UnityEngine.InputSystem.InputActionPhase.Started)
+        if(SceneManager.inputActions.Camera.Hold.phase == UnityEngine.InputSystem.InputActionPhase.Started)
         {
             //то присваиваем референс вращения к XY осям скрипта CinemachineInputProvider
             GetComponent<CinemachineInputProvider>().XYAxis = RotateReference;
@@ -46,7 +46,7 @@ public class FreeLookCameraController : MonoBehaviour
         //обработка нажатия на сторону куба
         if (Mouse.current.leftButton.wasPressedThisFrame)   //событие нажатия лкм
         {
-            var ray = Camera.main.ScreenPointToRay(SceneController.inputActions.Camera.HitPress.ReadValue<Vector2>());  //рейкаст курсора мышки
+            var ray = Camera.main.ScreenPointToRay(SceneManager.inputActions.Camera.HitPress.ReadValue<Vector2>());  //рейкаст курсора мышки
 
             if (Physics.Raycast(ray, out hit))
             {

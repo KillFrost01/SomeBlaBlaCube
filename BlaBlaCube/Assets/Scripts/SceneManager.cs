@@ -9,14 +9,18 @@ using Scripts;
 using System.IO;
 using Newtonsoft.Json;
 
-public class SceneController : MonoBehaviour
+public class SceneManager : MonoBehaviour
 {
+    //система ввода
     public static UserActions inputActions { get; private set; }
+
+    //статьи
     private List<Article> articles;
+
+    //UI
     public Text headerText;
     public Text infoText;
     public RawImage image;
-
 
     private void Awake()
     {
