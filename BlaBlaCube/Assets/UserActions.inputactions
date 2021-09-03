@@ -14,10 +14,18 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Press",
+                    "name": "Hold",
                     "type": "Button",
                     "id": "669784cb-2b7e-41fb-a122-9fe4b940f52e",
                     "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "HitPress",
+                    "type": "Value",
+                    "id": "57911cd0-295c-42e3-9d74-0a3b219ca457",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
                 }
@@ -41,7 +49,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Press",
+                    "action": "Hold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "235d11ab-a6a5-49ec-8621-f0efd793f9a3",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HitPress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

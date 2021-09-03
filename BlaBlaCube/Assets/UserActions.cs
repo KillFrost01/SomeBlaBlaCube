@@ -27,10 +27,18 @@ public class @UserActions : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Press"",
+                    ""name"": ""Hold"",
                     ""type"": ""Button"",
                     ""id"": ""669784cb-2b7e-41fb-a122-9fe4b940f52e"",
                     ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""HitPress"",
+                    ""type"": ""Value"",
+                    ""id"": ""57911cd0-295c-42e3-9d74-0a3b219ca457"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
                 }
@@ -54,7 +62,18 @@ public class @UserActions : IInputActionCollection, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Press"",
+                    ""action"": ""Hold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""235d11ab-a6a5-49ec-8621-f0efd793f9a3"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HitPress"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -66,7 +85,8 @@ public class @UserActions : IInputActionCollection, IDisposable
         // Camera
         m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
         m_Camera_Rotate = m_Camera.FindAction("Rotate", throwIfNotFound: true);
-        m_Camera_Press = m_Camera.FindAction("Press", throwIfNotFound: true);
+        m_Camera_Hold = m_Camera.FindAction("Hold", throwIfNotFound: true);
+        m_Camera_HitPress = m_Camera.FindAction("HitPress", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -117,13 +137,15 @@ public class @UserActions : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Camera;
     private ICameraActions m_CameraActionsCallbackInterface;
     private readonly InputAction m_Camera_Rotate;
-    private readonly InputAction m_Camera_Press;
+    private readonly InputAction m_Camera_Hold;
+    private readonly InputAction m_Camera_HitPress;
     public struct CameraActions
     {
         private @UserActions m_Wrapper;
         public CameraActions(@UserActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Rotate => m_Wrapper.m_Camera_Rotate;
-        public InputAction @Press => m_Wrapper.m_Camera_Press;
+        public InputAction @Hold => m_Wrapper.m_Camera_Hold;
+        public InputAction @HitPress => m_Wrapper.m_Camera_HitPress;
         public InputActionMap Get() { return m_Wrapper.m_Camera; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -136,9 +158,12 @@ public class @UserActions : IInputActionCollection, IDisposable
                 @Rotate.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
                 @Rotate.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
                 @Rotate.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnRotate;
-                @Press.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnPress;
-                @Press.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnPress;
-                @Press.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnPress;
+                @Hold.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnHold;
+                @Hold.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnHold;
+                @Hold.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnHold;
+                @HitPress.started -= m_Wrapper.m_CameraActionsCallbackInterface.OnHitPress;
+                @HitPress.performed -= m_Wrapper.m_CameraActionsCallbackInterface.OnHitPress;
+                @HitPress.canceled -= m_Wrapper.m_CameraActionsCallbackInterface.OnHitPress;
             }
             m_Wrapper.m_CameraActionsCallbackInterface = instance;
             if (instance != null)
@@ -146,9 +171,12 @@ public class @UserActions : IInputActionCollection, IDisposable
                 @Rotate.started += instance.OnRotate;
                 @Rotate.performed += instance.OnRotate;
                 @Rotate.canceled += instance.OnRotate;
-                @Press.started += instance.OnPress;
-                @Press.performed += instance.OnPress;
-                @Press.canceled += instance.OnPress;
+                @Hold.started += instance.OnHold;
+                @Hold.performed += instance.OnHold;
+                @Hold.canceled += instance.OnHold;
+                @HitPress.started += instance.OnHitPress;
+                @HitPress.performed += instance.OnHitPress;
+                @HitPress.canceled += instance.OnHitPress;
             }
         }
     }
@@ -156,6 +184,7 @@ public class @UserActions : IInputActionCollection, IDisposable
     public interface ICameraActions
     {
         void OnRotate(InputAction.CallbackContext context);
-        void OnPress(InputAction.CallbackContext context);
+        void OnHold(InputAction.CallbackContext context);
+        void OnHitPress(InputAction.CallbackContext context);
     }
 }

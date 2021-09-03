@@ -1,0 +1,32 @@
+﻿[
+  {
+    "Header": "Гранд-Каньон",
+    "PicturePath": "Images/Canyon",
+    "InfoText": "Бла-бла"
+  },
+  {
+    "Header": "Марианская впадина",
+    "PicturePath": "Images/Marian",
+    "InfoText": "блэ-блэ"
+  },
+  {
+    "Header": "Тайга",
+    "PicturePath": "Images/Taiga",
+    "InfoText": "Bla-bla"
+  },
+  {
+    "Header": "Лавандовые поля",
+    "PicturePath": "Images/Provance",
+    "InfoText": "pr-pr"
+  },
+  {
+    "Header": "Байкал",
+    "PicturePath": "Images/Baikal",
+    "InfoText": "ba-ba"
+  },
+  {
+    "Header": "Сахара",
+    "PicturePath": "Images/Sakhara",
+    "InfoText": "sk-sk"
+  }
+]
