@@ -22,6 +22,8 @@ public class SceneManager : MonoBehaviour
     public Text infoText;
     public RawImage image;
 
+    private static float timer = 0;
+
     private void Awake()
     {
         inputActions = new UserActions();
@@ -30,13 +32,15 @@ public class SceneManager : MonoBehaviour
     private void OnEnable()
     {
         inputActions.Enable();
-        FreeLookCameraController.ShowArticleEvent += OnArticleShow;
+        CameraController.OnEdgeClick += ShowArticle;
+        CameraController.OnUse += ResetTimer;
     }
 
     private void OnDisable()
     {
         inputActions.Disable();
-        FreeLookCameraController.ShowArticleEvent -= OnArticleShow;
+        CameraController.OnEdgeClick -= ShowArticle;
+        CameraController.OnUse -= ResetTimer;
     }
 
 
@@ -45,12 +49,7 @@ public class SceneManager : MonoBehaviour
     {
         LoadArticleList();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    
 
     private void LoadArticleList()
     {
@@ -60,10 +59,11 @@ public class SceneManager : MonoBehaviour
         articles = JsonConvert.DeserializeObject<List<Article>>(json);
     }
 
-    private void OnArticleShow(string articleName)
-    {
-        Article article = articles.Find(t => t.Header == articleName);
 
+    private void ShowArticle(string header)
+    {
+        Article article = articles.Find(t => t.Header == header);
+        
         headerText.text = article.Header;                                       //загрузка заголовка
         infoText.text = article.InfoText;                                       //загрузка текста
         image.texture = Resources.Load<Texture2D>(article.PicturePath);             //загрузка картинки
@@ -89,5 +89,24 @@ public class SceneManager : MonoBehaviour
                 sw.Write(iniAsset.text);
             }
         }
+    }
+
+    //событие-обнуление счетчика
+    private void ResetTimer()
+    {
+        timer = 0;
+        StartCoroutine(TimerCoroutine());
+    }
+
+    //корутина счетчика
+    private IEnumerator TimerCoroutine()
+    {
+        while (timer <= 60f)
+        {
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.1f;
+            Debug.Log(timer);
+        }
+        
     }
 }
