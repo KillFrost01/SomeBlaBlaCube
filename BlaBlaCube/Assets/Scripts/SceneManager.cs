@@ -8,21 +8,30 @@ using System;
 using Scripts;
 using System.IO;
 using Newtonsoft.Json;
+using TMPro;
+using UnityEngine.UIElements;
 
 public class SceneManager : MonoBehaviour
 {
+    //делегат и событие перехода в режим ожидания для камеры
+    public delegate void OnTimerStopHandler();
+    public static event OnTimerStopHandler TimerStopEvent;
+
     //система ввода
     public static UserActions inputActions { get; private set; }
 
     //статьи
     private List<Article> articles;
 
-    //UI
+    //UI: заголовок, текст, картинка
     public Text headerText;
     public Text infoText;
     public RawImage image;
 
-    private static float timer = 0;
+    public VerticalLayoutGroup vLayoutGroup;
+
+
+    //private static float timer = 0;
 
     private void Awake()
     {
@@ -32,15 +41,15 @@ public class SceneManager : MonoBehaviour
     private void OnEnable()
     {
         inputActions.Enable();
-        CameraController.OnEdgeClick += ShowArticle;
-        CameraController.OnUse += ResetTimer;
+        CameraController.OnEdgeClickEvent += ShowArticle;
+        CameraController.OnUseEvent += ResetTimer;
     }
 
     private void OnDisable()
     {
         inputActions.Disable();
-        CameraController.OnEdgeClick -= ShowArticle;
-        CameraController.OnUse -= ResetTimer;
+        CameraController.OnEdgeClickEvent -= ShowArticle;
+        CameraController.OnUseEvent -= ResetTimer;
     }
 
 
@@ -51,6 +60,9 @@ public class SceneManager : MonoBehaviour
     }
     
 
+    /// <summary>
+    /// Загрузка статей из json-файла
+    /// </summary>
     private void LoadArticleList()
     {
         var iniAsset = Resources.Load<TextAsset>("Data");
@@ -59,14 +71,20 @@ public class SceneManager : MonoBehaviour
         articles = JsonConvert.DeserializeObject<List<Article>>(json);
     }
 
-
+    /// <summary>
+    /// Загрузка статьи на GUI
+    /// </summary>
+    /// <param name="header">Заголовок (название статьи)</param>
     private void ShowArticle(string header)
     {
-        Article article = articles.Find(t => t.Header == header);
+        Article article = articles.Find(t => t.Header == header);               //поиск статьи в списке по заголовку
         
         headerText.text = article.Header;                                       //загрузка заголовка
         infoText.text = article.InfoText;                                       //загрузка текста
         image.texture = Resources.Load<Texture2D>(article.PicturePath);             //загрузка картинки
+
+        //тут происходит магия: высота Content выравнивается в соответствии с высотой Text
+        vLayoutGroup.enabled = true;
     }
 
 
@@ -94,18 +112,19 @@ public class SceneManager : MonoBehaviour
     //событие-обнуление счетчика
     private void ResetTimer()
     {
-        timer = 0;
+        StopAllCoroutines();
         StartCoroutine(TimerCoroutine());
     }
 
-    //корутина счетчика
+    //корутина счетчика 60 сек
     private IEnumerator TimerCoroutine()
     {
-        while (timer <= 60f)
+        while (true)
         {
-            yield return new WaitForSeconds(0.1f);
-            timer += 0.1f;
-            Debug.Log(timer);
+            yield return new WaitForSecondsRealtime(10);
+
+            Debug.Log("Stop Timer");
+            TimerStopEvent();
         }
         
     }
