@@ -18,7 +18,7 @@ public class SceneManager : MonoBehaviour
     public static event OnTimerStopHandler TimerStopEvent;
 
     //система ввода
-    public static UserActions inputActions { get; private set; }
+    public static UserActions actions { get; private set; }
 
     //статьи
     private List<Article> articles;
@@ -29,25 +29,26 @@ public class SceneManager : MonoBehaviour
     public RawImage image;
 
     public VerticalLayoutGroup vLayoutGroup;
-
+    public Scrollbar vScrollbar;
+    public Animator panelAnimator;
 
     //private static float timer = 0;
 
     private void Awake()
     {
-        inputActions = new UserActions();
+        actions = new UserActions();
     }
 
     private void OnEnable()
     {
-        inputActions.Enable();
+        actions.Enable();
         CameraController.OnEdgeClickEvent += ShowArticle;
         CameraController.OnUseEvent += ResetTimer;
     }
 
     private void OnDisable()
     {
-        inputActions.Disable();
+        actions.Disable();
         CameraController.OnEdgeClickEvent -= ShowArticle;
         CameraController.OnUseEvent -= ResetTimer;
     }
@@ -85,28 +86,8 @@ public class SceneManager : MonoBehaviour
 
         //тут происходит магия: высота Content выравнивается в соответствии с высотой Text
         vLayoutGroup.enabled = true;
-    }
 
-
-    public static string DataPath(string fileName)
-    {
-        if (Directory.Exists(Application.persistentDataPath))
-        {
-            return Path.Combine(Application.persistentDataPath, fileName);
-        }
-        return Path.Combine(Application.streamingAssetsPath, fileName);
-    }
-    public static void CheckFileExistance(string filePath, string name, bool isReading = false)
-    {
-        if (!File.Exists(filePath))
-        {
-            File.Create(filePath).Close();
-            var iniAsset = (TextAsset)Resources.Load(name);
-            using (StreamWriter sw = new StreamWriter(filePath))
-            {
-                sw.Write(iniAsset.text);
-            }
-        }
+        panelAnimator.SetBool("isPanelView", true);
     }
 
     //событие-обнуление счетчика
@@ -121,11 +102,24 @@ public class SceneManager : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSecondsRealtime(10);
+            yield return new WaitForSecondsRealtime(60);
 
-            Debug.Log("Stop Timer");
+            panelAnimator.SetBool("isPanelView", false);
+            vScrollbar.value = 1;
+
             TimerStopEvent();
         }
         
+    }
+
+    //обработчик для кнопки закрытия панели
+    public void ClosePanel()
+    {
+        vLayoutGroup.enabled = false;
+        panelAnimator.SetBool("isPanelView", false);
+        vScrollbar.value = 1;
+        actions.Camera.Enable();
+
+        CameraController.cameraState = CameraState.Return;
     }
 }

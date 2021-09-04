@@ -83,7 +83,7 @@ GameObject:
   - component: {fileID: 1744967366336004237}
   - component: {fileID: 1744967366336004238}
   - component: {fileID: 1744967366336004239}
-  - component: {fileID: 6526884436665534844}
+  - component: {fileID: 8145742423424547176}
   m_Layer: 5
   m_Name: InfoPanel
   m_TagString: Untagged
@@ -179,7 +179,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!95 &6526884436665534844
+--- !u!95 &8145742423424547176
 Animator:
   serializedVersion: 3
   m_ObjectHideFlags: 0
@@ -189,7 +189,7 @@ Animator:
   m_GameObject: {fileID: 1744967366336004233}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c224910ee9456a846bcfa5e005390d11, type: 2}
+  m_Controller: {fileID: 9100000, guid: 990b911343ced034d8598b65847741e8, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -235,7 +235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000013518424}
+  m_AnchoredPosition: {x: 0, y: -0.00004506111}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1744967366479033747

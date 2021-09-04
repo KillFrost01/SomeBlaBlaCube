@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
+//состояния камеры
 public enum CameraState
 {
     Enable,         //рабочее состояние
@@ -13,6 +15,8 @@ public enum CameraState
     Return,         //возращается в исходное положение
     Waiting         //состояние ожидания (после 60 сек)
 }
+
+
 public class CameraController : MonoBehaviour
 {
     //делегат и событие нажатия на грань куба
@@ -22,10 +26,10 @@ public class CameraController : MonoBehaviour
     public delegate void OnUseHandler();
     public static event OnUseHandler OnUseEvent;
 
+    public Scrollbar vScrollbar;
+    public Animator panelAnimator;
 
-    private CameraState cameraState = CameraState.Enable;
-
-    private UserActions actions;    
+    public static CameraState cameraState = CameraState.Enable;  
 
     [SerializeField]
     private Transform target;           //цель
@@ -44,20 +48,13 @@ public class CameraController : MonoBehaviour
 
     private RaycastHit hit;                         //хит рейкаста
 
-    private void Awake()
-    {
-        actions = new UserActions();
-    }
-
     private void OnEnable()
     {
-        actions.Enable();
         SceneManager.TimerStopEvent += ChangeCameraStateOnWait;
     }
 
     private void OnDisable()
     {
-        actions.Disable();
         SceneManager.TimerStopEvent -= ChangeCameraStateOnWait;
     }
 
@@ -74,22 +71,22 @@ public class CameraController : MonoBehaviour
     private void FixedUpdate()
     {
         //если состояние камеры enable
-        if (cameraState == CameraState.Enable)
+        if (cameraState == CameraState.Enable || cameraState == CameraState.Waiting)
         {
-            if (actions.Camera.Hold.phase == InputActionPhase.Started)
+            if (SceneManager.actions.Camera.Hold.phase == InputActionPhase.Started)
             {
                 OnUseEvent();                //событие-обнуление счетчика
 
                 curSpeed = rotationSpeed;
                 //направление движения мыши
-                Vector2 mDelta = actions.Camera.Rotate.ReadValue<Vector2>().normalized;
+                Vector2 mDelta = SceneManager.actions.Camera.Rotate.ReadValue<Vector2>().normalized;
                 //направление движения камеры
                 dir = new Vector3(-mDelta.y, mDelta.x, 0);
-
+                Debug.Log(dir);
             }
 
             //если камера достигает дедзоны, то по У коорд не двигаем
-            if (transform.position.y < minHeight + 0.6 && dir.x > 0 || transform.position.y > maxHeight - 0.5 && dir.x < 0)
+            if (transform.position.y < minHeight + 0.6 && dir.x < 0 || transform.position.y > maxHeight - 0.5 && dir.x > 0)
                 dir.x = 0;
 
             //что-то типа инерции (затухание скорости)
@@ -98,8 +95,8 @@ public class CameraController : MonoBehaviour
             //transform.RotateAround(target.position, dir, 1f * curSpeed * Time.deltaTime);   
 
             //вращение вокруг куба по двум осям
-            transform.RotateAround(target.position, transform.right, -dir.x * curSpeed);
-            transform.RotateAround(target.position, transform.up, -dir.y * curSpeed);
+            transform.RotateAround(target.position, transform.right, dir.x * curSpeed);
+            transform.RotateAround(target.position, transform.up, dir.y * curSpeed);
 
         }
 
@@ -115,27 +112,22 @@ public class CameraController : MonoBehaviour
         //обработка нажатия на грань куба
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            OnUseEvent();                //событие-обнуление счетчика
-            var ray = Camera.main.ScreenPointToRay(SceneManager.inputActions.Camera.HitPress.ReadValue<Vector2>());  //рейкаст курсора мышки
-
+            //событие-обнуление счетчика
+            OnUseEvent();
+            //рейкаст курсора мышки
+            var ray = Camera.main.ScreenPointToRay(SceneManager.actions.Camera.HitPress.ReadValue<Vector2>()); 
             if (Physics.Raycast(ray, out hit))
             {
 
                 //если рейкаст упал на сторону куба и состояние камеры enable
                 if (hit.collider.CompareTag("CubeEdge") && cameraState == CameraState.Enable)
                 {
-                    Debug.Log("Hit the " + hit.collider.name);
-
                     prevCamPosition = transform.position;           //сохраняем позицию камеры до приближения к кубу
 
                     cameraState = CameraState.MoveToCube;                 //смена состояния камеры
-                    
-                    OnEdgeClickEvent(hit.collider.name);                 //вызов события
-                }
-                else if (!hit.collider.CompareTag("CubeEdge") && cameraState != CameraState.Waiting)
-                {
-                    cameraState = CameraState.Return;
 
+                    //SceneManager.actions.Camera.Disable();
+                    OnEdgeClickEvent(hit.collider.name);                 //вызов события
                 }
             }
         }
@@ -163,17 +155,20 @@ public class CameraController : MonoBehaviour
 
     private IEnumerator CameraWaiting()
     {
+        //возвращение камеры в начальную точку
         while ((transform.position - startCamPosition).sqrMagnitude > 0.001f)
         {
             transform.position = Vector3.Slerp(transform.position, startCamPosition, 5f * Time.deltaTime);
             transform.LookAt(target);
             yield return new WaitForSeconds(0.001f);
         }
+        //вращение камеры вокруг куба
         while (true)
         {
             yield return new WaitForSeconds(0.01f);
             transform.RotateAround(target.position, transform.up, 5f * Time.deltaTime);
             transform.LookAt(target);
+
             if (Mouse.current.leftButton.isPressed)
             {
                 cameraState = CameraState.Enable;
@@ -181,8 +176,9 @@ public class CameraController : MonoBehaviour
                 break;
             }
         }
-        yield return null;
+        
     }
+
 
     /// <summary>
     /// обработчик события остановки счетчика (60 сек),
